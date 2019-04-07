@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import geolocation from '../lib/geolocation'
+
 export default {
   name: 'GardenMap',
   data () {
@@ -54,10 +56,15 @@ export default {
       zoom: 19,
       center: [11.417923472761114, 47.89763465196907],
       rotation: 0,
-      geolocPosition: undefined
+      geolocPosition: getLocation()
     }
   }
 }
+
+function getLocation () {
+  return geolocation()
+}
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -76,7 +83,7 @@ export default {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0.7,0.7,0.7,0.7);
+    background-color: rgba(0.7, 0.7, 0.7, 0.7);
     color: white;
   }
 </style>
