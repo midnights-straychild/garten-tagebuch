@@ -10,7 +10,14 @@
         :zoom.sync="zoom"
         :center.sync="center"
         :rotation.sync="rotation"/>
-
+      <vl-layer-image>
+        <vl-source-image-static
+          :size="gartenPlan.size"
+          :extent="gartenPlan.extent"
+          :projection="gartenPlan.projection"
+          url="../assets/garten.png"
+        />
+      </vl-layer-image>
       <vl-geoloc
         :tracking="true"
         :tracking-options="{ enableHighAccuracy: true }"
@@ -24,9 +31,9 @@
               :coordinates="geoloc.position"/>
             <vl-style-box>
               <vl-style-icon
-                :scale="0.4"
+                :scale="0.25"
                 :anchor="[0.5, 1]"
-                src="logo.png"/>
+                src="../assets/marker-green.png"/>
             </vl-style-box>
           </vl-feature>
         </template>
@@ -48,15 +55,34 @@
 
 <script>
 import geolocation from '../lib/geolocation'
+import {addProj, createProj} from 'vuelayers/lib/ol-ext'
 
 export default {
   name: 'GardenMap',
   data () {
+    const size = [624, 984]
+    const extent = [0, 0, ...size]
+    const customProjection = createProj({
+      code: 'EPSG:4326',
+      units: 'pixels',
+      extent: extent,
+      worldExtent: [11.417794443914175, 47.89767893271187, 11.418014325098195, 47.897471256658946],
+      global: true,
+      metersPerUnit: 1
+    })
+
+    addProj(customProjection)
+
     return {
-      zoom: 19,
+      zoom: 15,
       center: [11.417923472761114, 47.89763465196907],
       rotation: 0,
-      geolocPosition: getLocation()
+      geolocPosition: getLocation(),
+      gartenPlan: {
+        size: size,
+        extent: extent,
+        projection: customProjection.getCode()
+      }
     }
   }
 }
