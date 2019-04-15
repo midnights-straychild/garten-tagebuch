@@ -28,6 +28,11 @@ export default {
           id: 1,
           text: 'GardenMap',
           page: '/GardenMap'
+        },
+        {
+          id: 2,
+          text: 'DemoMap',
+          page: '/DemoMap'
         }
       ]
     }

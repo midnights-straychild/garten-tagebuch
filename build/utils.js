@@ -1,7 +1,7 @@
 'use strict'
 const path = require('path')
 const config = require('../config')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const packageConfig = require('../package.json')
 
 exports.assetsPath = function (_path) {
@@ -44,14 +44,10 @@ exports.cssLoaders = function (options) {
 
     // Extract CSS when that option is specified
     // (which is the case during production build)
-    if (options.extract) {
-      return ExtractTextPlugin.extract({
-        use: loaders,
-        fallback: 'vue-style-loader'
-      })
-    } else {
-      return ['vue-style-loader'].concat(loaders)
-    }
+    return [
+      options.extract ? MiniCssExtractPlugin.loader : 'vue-style-loader',
+      ...loaders,
+    ]
   }
 
   // https://vue-loader.vuejs.org/en/configurations/extract-css.html
@@ -59,8 +55,20 @@ exports.cssLoaders = function (options) {
     css: generateLoaders(),
     postcss: generateLoaders(),
     less: generateLoaders('less'),
-    sass: generateLoaders('sass', { indentedSyntax: true }),
-    scss: generateLoaders('sass'),
+    sass: generateLoaders('sass', {
+      includePaths: [
+        path.resolve(__dirname, '../src'),
+        path.resolve(__dirname, '../src/sass'),
+        path.resolve(__dirname, '../node_modules'),
+      ], indentedSyntax: true
+    }),
+    scss: generateLoaders('sass', {
+      includePaths: [
+        path.resolve(__dirname, '../src'),
+        path.resolve(__dirname, '../src/sass'),
+        path.resolve(__dirname, '../node_modules'),
+      ],
+    }),
     stylus: generateLoaders('stylus'),
     styl: generateLoaders('stylus')
   }
