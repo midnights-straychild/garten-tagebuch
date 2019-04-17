@@ -1,46 +1,75 @@
 <template xmlns:>
-  <div id="app" :class="[$options.name]">
+  <div
+    id="app"
+    :class="[$options.name]">
     <!-- app map -->
-    <vl-map v-if="mapVisible" class="map" ref="map" :load-tiles-while-animating="true"
-            :load-tiles-while-interacting="true"
-            @click="clickCoordinate = $event.coordinate" @postcompose="onMapPostCompose"
-            data-projection="EPSG:4326" @mounted="onMapMounted">
+    <vl-map
+      v-if="mapVisible"
+      class="map"
+      ref="map"
+      :load-tiles-while-animating="true"
+      :load-tiles-while-interacting="true"
+      @click="clickCoordinate = $event.coordinate"
+      @postcompose="onMapPostCompose"
+      data-projection="EPSG:4326"
+      @mounted="onMapMounted">
       <!-- map view aka ol.View -->
-      <vl-view ref="view" :center.sync="center" :zoom.sync="zoom" :rotation.sync="rotation"></vl-view>
+      <vl-view
+        ref="view"
+        :center.sync="center"
+        :zoom.sync="zoom"
+        :rotation.sync="rotation"/>
 
       <!-- interactions -->
-      <vl-interaction-select :features.sync="selectedFeatures" v-if="drawType == null">
+      <vl-interaction-select
+        :features.sync="selectedFeatures"
+        v-if="drawType == null">
         <template slot-scope="select">
           <!-- select styles -->
           <vl-style-box>
-            <vl-style-stroke color="#423e9e" :width="7"></vl-style-stroke>
-            <vl-style-fill :color="[254, 178, 76, 0.7]"></vl-style-fill>
+            <vl-style-stroke
+              color="#423e9e"
+              :width="7"/>
+            <vl-style-fill :color="[254, 178, 76, 0.7]"/>
             <vl-style-circle :radius="5">
-              <vl-style-stroke color="#423e9e" :width="7"></vl-style-stroke>
-              <vl-style-fill :color="[254, 178, 76, 0.7]"></vl-style-fill>
+              <vl-style-stroke
+                color="#423e9e"
+                :width="7"/>
+              <vl-style-fill :color="[254, 178, 76, 0.7]"/>
             </vl-style-circle>
           </vl-style-box>
           <vl-style-box :z-index="1">
-            <vl-style-stroke color="#d43f45" :width="2"></vl-style-stroke>
+            <vl-style-stroke
+              color="#d43f45"
+              :width="2"/>
             <vl-style-circle :radius="5">
-              <vl-style-stroke color="#d43f45" :width="2"></vl-style-stroke>
+              <vl-style-stroke
+                color="#d43f45"
+                :width="2"/>
             </vl-style-circle>
           </vl-style-box>
           <!--// select styles -->
 
           <!-- selected feature popup -->
-          <vl-overlay class="feature-popup" v-for="feature in select.features" :key="feature.id" :id="feature.id"
-                      :position="pointOnSurface(feature.geometry)" :auto-pan="true"
-                      :auto-pan-animation="{ duration: 300 }">
+          <vl-overlay
+            class="feature-popup"
+            v-for="feature in select.features"
+            :key="feature.id"
+            :id="feature.id"
+            :position="pointOnSurface(feature.geometry)"
+            :auto-pan="true"
+            :auto-pan-animation="{ duration: 300 }">
             <template slot-scope="popup">
               <section class="card">
                 <header class="card-header">
                   <p class="card-header-title">
                     Feature ID {{ feature.id }}
                   </p>
-                  <a class="card-header-icon" title="Close"
-                     @click="selectedFeatures = selectedFeatures.filter(f => f.id !== feature.id)">
-                    <b-icon icon="close"></b-icon>
+                  <a
+                    class="card-header-icon"
+                    title="Close"
+                    @click="selectedFeatures = selectedFeatures.filter(f => f.id !== feature.id)">
+                    <b-icon icon="close"/>
                   </a>
                 </header>
                 <div class="card-content">
@@ -52,7 +81,8 @@
                       Popup: {{ JSON.stringify(popup) }}
                     </p>
                     <p>
-                      Feature: {{ JSON.stringify({ id: feature.id, properties: feature.properties }) }}
+                      Feature: {{ JSON.stringify({ id: feature.id, properties: feature.properties
+                      }) }}
                     </p>
                   </div>
                 </div>
@@ -67,10 +97,15 @@
       <!-- geolocation -->
       <vl-geoloc @update:position="onUpdatePosition">
         <template slot-scope="geoloc">
-          <vl-feature v-if="geoloc.position" id="position-feature">
-            <vl-geom-point :coordinates="geoloc.position"></vl-geom-point>
+          <vl-feature
+            v-if="geoloc.position"
+            id="position-feature">
+            <vl-geom-point :coordinates="geoloc.position"/>
             <vl-style-box>
-              <vl-style-icon src="./../assets/marker.png" :scale="0.4" :anchor="[0.5, 1]"></vl-style-icon>
+              <vl-style-icon
+                src="./../assets/marker.png"
+                :scale="0.4"
+                :anchor="[0.5, 1]"/>
             </vl-style-box>
           </vl-feature>
         </template>
@@ -78,15 +113,24 @@
       <!--// geolocation -->
 
       <!-- overlay marker with animation -->
-      <vl-feature id="marker" ref="marker" :properties="{ start: Date.now(), duration: 2500 }">
+      <vl-feature
+        id="marker"
+        ref="marker"
+        :properties="{ start: Date.now(), duration: 2500 }">
         <template slot-scope="feature">
-          <vl-geom-point :coordinates="[-10, -10]"></vl-geom-point>
+          <vl-geom-point :coordinates="[-10, -10]"/>
           <vl-style-box>
-            <vl-style-icon src="./../assets/flag.png" :scale="0.5" :anchor="[0.1, 0.95]"
-                           :size="[128, 128]"></vl-style-icon>
+            <vl-style-icon
+              src="./../assets/flag.png"
+              :scale="0.5"
+              :anchor="[0.1, 0.95]"
+              :size="[128, 128]"/>
           </vl-style-box>
           <!-- overlay binded to feature -->
-          <vl-overlay v-if="feature.geometry" :position="pointOnSurface(feature.geometry)" :offset="[10, 10]">
+          <vl-overlay
+            v-if="feature.geometry"
+            :position="pointOnSurface(feature.geometry)"
+            :offset="[10, 10]">
             <p class="is-light box content">
               Always opened overlay for Feature ID <strong>{{ feature.id }}</strong>
             </p>
@@ -95,37 +139,64 @@
       </vl-feature>
       <!--// overlay marker -->
 
-
       <!-- circle geom -->
       <vl-feature id="circle">
-        <vl-geom-circle :radius="1000000" :coordinates="[0, 30]"></vl-geom-circle>
+        <vl-geom-circle
+          :radius="1000000"
+          :coordinates="[0, 30]"/>
       </vl-feature>
       <!--// circle geom -->
 
       <!-- base layers -->
-      <vl-layer-tile v-for="layer in baseLayers" :key="layer.name" :id="layer.name" :visible="layer.visible">
-        <component :is="'vl-source-' + layer.name" v-bind="layer"></component>
+      <vl-layer-tile
+        v-for="layer in baseLayers"
+        :key="layer.name"
+        :id="layer.name"
+        :visible="layer.visible">
+        <component
+          :is="'vl-source-' + layer.name"
+          v-bind="layer"/>
       </vl-layer-tile>
       <!--// base layers -->
 
       <!-- other layers from config -->
-      <component v-for="layer in layers" :is="layer.cmp" v-if="layer.visible" :key="layer.id" v-bind="layer">
+      <component
+        v-for="layer in layers"
+        :is="layer.cmp"
+        v-if="layer.visible"
+        :key="layer.id"
+        v-bind="layer">
         <!-- add vl-source-* -->
-        <component :is="layer.source.cmp" v-bind="layer.source">
+        <component
+          :is="layer.source.cmp"
+          v-bind="layer.source">
           <!-- add static features to vl-source-vector if provided -->
-          <vl-feature v-if="layer.source.staticFeatures && layer.source.staticFeatures.length"
-                      v-for="feature in layer.source.staticFeatures" :key="feature.id"
-                      :id="feature.id" :properties="feature.properties">
-            <component :is="geometryTypeToCmpName(feature.geometry.type)" v-bind="feature.geometry"></component>
+          <vl-feature
+            v-if="layer.source.staticFeatures && layer.source.staticFeatures.length"
+            v-for="feature in layer.source.staticFeatures"
+            :key="feature.id"
+            :id="feature.id"
+            :properties="feature.properties">
+            <component
+              :is="geometryTypeToCmpName(feature.geometry.type)"
+              v-bind="feature.geometry"/>
           </vl-feature>
 
           <!-- add inner source if provided (like vl-source-vector inside vl-source-cluster) -->
-          <component v-if="layer.source.source" :is="layer.source.source.cmp" v-bind="layer.source.source">
+          <component
+            v-if="layer.source.source"
+            :is="layer.source.source.cmp"
+            v-bind="layer.source.source">
             <!-- add static features to vl-source-vector if provided -->
-            <vl-feature v-if="layer.source.source.staticFeatures && layer.source.source.staticFeatures.length"
-                        v-for="feature in layer.source.source.staticFeatures" :key="feature.id"
-                        :id="feature.id" :properties="feature.properties">
-              <component :is="geometryTypeToCmpName(feature.geometry.type)" v-bind="feature.geometry"></component>
+            <vl-feature
+              v-if="layer.source.source.staticFeatures && layer.source.source.staticFeatures.length"
+              v-for="feature in layer.source.source.staticFeatures"
+              :key="feature.id"
+              :id="feature.id"
+              :properties="feature.properties">
+              <component
+                :is="geometryTypeToCmpName(feature.geometry.type)"
+                v-bind="feature.geometry"/>
             </vl-feature>
           </component>
         </component>
@@ -133,12 +204,26 @@
 
         <!-- add style components if provided -->
         <!-- create vl-style-box or vl-style-func -->
-        <component v-if="layer.style" v-for="(style, i) in layer.style" :key="i" :is="style.cmp" v-bind="style">
+        <component
+          v-if="layer.style"
+          v-for="(style, i) in layer.style"
+          :key="i"
+          :is="style.cmp"
+          v-bind="style">
           <!-- create inner style components: vl-style-circle, vl-style-icon, vl-style-fill, vl-style-stroke & etc -->
-          <component v-if="style.styles" v-for="(st, cmp) in style.styles" :key="cmp" :is="cmp" v-bind="st">
+          <component
+            v-if="style.styles"
+            v-for="(st, cmp) in style.styles"
+            :key="cmp"
+            :is="cmp"
+            v-bind="st">
             <!-- vl-style-fill, vl-style-stroke if provided -->
-            <vl-style-fill v-if="st.fill" v-bind="st.fill"></vl-style-fill>
-            <vl-style-stroke v-if="st.stroke" v-bind="st.stroke"></vl-style-stroke>
+            <vl-style-fill
+              v-if="st.fill"
+              v-bind="st.fill"/>
+            <vl-style-stroke
+              v-if="st.stroke"
+              v-bind="st.stroke"/>
           </component>
         </component>
         <!--// style -->
@@ -146,38 +231,51 @@
       <!--// other layers -->
 
       <!-- draw components -->
-      <vl-layer-vector id="draw-pane" v-if="mapPanel.tab === 'draw'">
-        <vl-source-vector ident="draw-target" :features.sync="drawnFeatures"></vl-source-vector>
+      <vl-layer-vector
+        id="draw-pane"
+        v-if="mapPanel.tab === 'draw'">
+        <vl-source-vector
+          ident="draw-target"
+          :features.sync="drawnFeatures"/>
       </vl-layer-vector>
 
-      <vl-interaction-draw v-if="mapPanel.tab === 'draw' && drawType" source="draw-target"
-                           :type="drawType"></vl-interaction-draw>
-      <vl-interaction-modify v-if="mapPanel.tab === 'draw'" source="draw-target"></vl-interaction-modify>
-      <vl-interaction-snap v-if="mapPanel.tab === 'draw'" source="draw-target" :priority="10"></vl-interaction-snap>
-      <!--// draw components -->
+      <vl-interaction-draw
+        v-if="mapPanel.tab === 'draw' && drawType"
+        source="draw-target"
+        :type="drawType"/>
+      <vl-interaction-modify
+        v-if="mapPanel.tab === 'draw'"
+        source="draw-target"/>
+      <vl-interaction-snap
+        v-if="mapPanel.tab === 'draw'"
+        source="draw-target"
+        :priority="10"/>
     </vl-map>
     <!--// app map -->
 
     <!-- map panel, controls -->
     <div class="map-panel">
-      <b-collapse class="panel box is-paddingless" :open.sync="panelOpen">
-        <div slot="trigger" class="panel-heading">
-          <div class="columns">
-            <div class="column is-11">
-              <strong>Map panel</strong>
-            </div>
-            <div class="column">
-              <b-icon :icon="panelOpen ? 'chevron-up' : 'chevron-down'" size="is-small"></b-icon>
-            </div>
-          </div>
+      <b-collapse
+        class="panel">
+        <div
+          class="panel-heading">
+          <strong>Map panel</strong>
         </div>
-        <p class="panel-tabs">
-          <a @click="showMapPanelTab('state')" :class="mapPanelTabClasses('state')">State</a>
-          <a @click="showMapPanelTab('layers')" :class="mapPanelTabClasses('layers')">Layers</a>
-          <a @click="showMapPanelTab('draw')" :class="mapPanelTabClasses('draw')">Draw</a>
-        </p>
+        <div class="panel-tabs">
+          <a
+            @click="showMapPanelTab('state')"
+            :class="mapPanelTabClasses('state')">State</a>
+          <a
+            @click="showMapPanelTab('layers')"
+            :class="mapPanelTabClasses('layers')">Layers</a>
+          <a
+            @click="showMapPanelTab('draw')"
+            :class="mapPanelTabClasses('draw')">Draw</a>
+        </div>
 
-        <div class="panel-block" v-show="mapPanel.tab === 'state'">
+        <div
+          class="panel-block"
+          v-show="mapPanel.tab === 'state'">
           <table class="table is-fullwidth">
             <tr>
               <th>Map center</th>
@@ -202,19 +300,33 @@
           </table>
         </div>
 
-        <div class="panel-block" v-for="layer in layers" :key="layer.id" @click="showMapPanelLayer"
-             :class="{ 'is-active': layer.visible }"
-             v-show="mapPanel.tab === 'layers'">
-          <b-switch :key="layer.id" v-model="layer.visible">
-            {{ layer.title }}
-          </b-switch>
+        <div
+          class="panel-block"
+          v-for="layer in layers"
+          :key="layer.id"
+          @click="showMapPanelLayer"
+          :class="{ 'is-active': layer.visible }"
+          v-show="mapPanel.tab === 'layers'">
+          <input
+            name="layers"
+            type="checkbox"
+            :id="layer.id"
+            @click="showMapPanelLayer(layer)"
+            :selected="layer.visible">
+          <label
+            :for="layer.id">{{ layer.title }}</label>
         </div>
 
-        <div class="panel-block draw-panel" v-show="mapPanel.tab === 'draw'">
+        <div
+          class="panel-block draw-panel"
+          v-show="mapPanel.tab === 'draw'">
           <div class="buttons">
-            <button v-for="control in drawControls" :key="control.type || -1" @click="drawType = control.type"
-                    :class="drawType && drawType === control.type ? 'is-info' : ''" class="button">
-              <b-icon :icon="control.icon"></b-icon>
+            <button
+              v-for="control in drawControls"
+              :key="control.type || -1"
+              @click="drawType = control.type"
+              :class="drawType && drawType === control.type ? 'is-info' : ''"
+              class="button">
               <span>{{ control.label }}</span>
             </button>
           </div>
@@ -226,12 +338,17 @@
     <!-- base layers switch -->
     <div class="base-layers-panel">
       <div class="buttons has-addons">
-        <button class="button is-light" v-for="layer in baseLayers"
-                :key="layer.name" :class="{ 'is-info': layer.visible }"
-                @click="showBaseLayer(layer.name)">
+        <button
+          class="button is-light"
+          v-for="layer in baseLayers"
+          :key="layer.name"
+          :class="{ 'is-info': layer.visible }"
+          @click="showBaseLayer(layer.name)">
           {{ layer.title }}
         </button>
-        <button class="button is-light" @click="mapVisible = !mapVisible">
+        <button
+          class="button is-light"
+          @click="mapVisible = !mapVisible">
           {{ mapVisible ? 'Hide map' : 'Show map' }}
         </button>
       </div>
@@ -263,7 +380,7 @@ let imageExtent = [-x / 2, -y / 2, x / 2, y / 2]
 let customProj = createProj({
   code: 'xkcd-image',
   units: 'pixels',
-  extent: imageExtent,
+  extent: imageExtent
 })
 // add to the list of known projections
 // after that it can be used by code
@@ -286,13 +403,13 @@ const methods = {
       createStyle({
         strokeColor: '#de9147',
         strokeWidth: 3,
-        fillColor: [222, 189, 36, 0.8],
-      }),
+        fillColor: [222, 189, 36, 0.8]
+      })
     ]
     const path = [
       createStyle({
         strokeColor: 'blue',
-        strokeWidth: 1,
+        strokeWidth: 1
       }),
       createStyle({
         imageRadius: 5,
@@ -300,14 +417,14 @@ const methods = {
         geom (feature) {
           // geometry is an LineString, convert it to MultiPoint to style vertex
           return createMultiPointGeom(feature.getGeometry().getCoordinates())
-        },
-      }),
+        }
+      })
     ]
     const eye = [
       createStyle({
         imageRadius: 6,
-        imageFillColor: '#444444',
-      }),
+        imageFillColor: '#444444'
+      })
     ]
 
     return function __pacmanStyleFunc (feature) {
@@ -338,7 +455,7 @@ const methods = {
           strokeColor: '#fff',
           fillColor: '#3399cc',
           text: size.toString(),
-          textFillColor: '#fff',
+          textFillColor: '#fff'
         })
         cache[size] = style
       }
@@ -369,7 +486,7 @@ const methods = {
       imageRadius: radius,
       fillColor: [119, 170, 203, fillOpacity],
       strokeColor: [119, 170, 203, opacity],
-      strokeWidth: 2 + opacity,
+      strokeWidth: 2 + opacity
     }))
 
     vectorContext.drawGeometry(flashGeom)
@@ -389,9 +506,9 @@ const methods = {
       new FullScreen(),
       new OverviewMap({
         collapsed: false,
-        collapsible: true,
+        collapsible: true
       }),
-      new ZoomSlider(),
+      new ZoomSlider()
     ])
   },
   // base layers
@@ -409,7 +526,7 @@ const methods = {
   // map panel
   mapPanelTabClasses (tab) {
     return {
-      'is-active': this.mapPanel.tab === tab,
+      'is-active': this.mapPanel.tab === tab
     }
   },
   showMapPanelLayer (layer) {
@@ -420,11 +537,11 @@ const methods = {
     if (tab !== 'draw') {
       this.drawType = undefined
     }
-  },
+  }
 }
 
 export default {
-  name: 'vld-demo-app',
+  name: 'VldDemoApp',
   methods,
   data () {
     return {
@@ -435,7 +552,7 @@ export default {
       selectedFeatures: [],
       deviceCoordinate: undefined,
       mapPanel: {
-        tab: 'state',
+        tab: 'state'
       },
       panelOpen: true,
       mapVisible: true,
@@ -443,28 +560,28 @@ export default {
         {
           type: 'point',
           label: 'Draw Point',
-          icon: 'map-marker',
+          icon: 'map-marker'
         },
         {
           type: 'line-string',
           label: 'Draw LineString',
-          icon: 'minus',
+          icon: 'minus'
         },
         {
           type: 'polygon',
           label: 'Draw Polygon',
-          icon: 'square-o',
+          icon: 'square-o'
         },
         {
           type: 'circle',
           label: 'Draw Circle',
-          icon: 'circle-thin',
+          icon: 'circle-thin'
         },
         {
           type: undefined,
           label: 'Stop drawing',
-          icon: 'times',
-        },
+          icon: 'times'
+        }
       ],
       drawType: undefined,
       drawnFeatures: [],
@@ -473,25 +590,25 @@ export default {
         {
           name: 'osm',
           title: 'OpenStreetMap',
-          visible: true,
+          visible: true
         },
         {
           name: 'sputnik',
           title: 'Sputnik Maps',
-          visible: false,
+          visible: false
         },
         // needs paid plan to get key
-        // {
-        //   name: 'mapbox',
-        //   title: 'Mapbox',
-        // },
+        {
+          name: 'mapbox',
+          title: 'Mapbox'
+        },
         {
           name: 'bingmaps',
           title: 'Bing Maps',
           apiKey: 'ArbsA9NX-AZmebC6VyXAnDqjXk6mo2wGCmeYM8EwyDaxKfQhUYyk0jtx6hX5fpMn',
           imagerySet: 'CanvasGray',
-          visible: false,
-        },
+          visible: false
+        }
       ],
       // layers config
       layers: [
@@ -505,14 +622,14 @@ export default {
           renderMode: 'image',
           source: {
             cmp: 'vl-source-vector',
-            staticFeatures: pacmanFeaturesCollection.features,
+            staticFeatures: pacmanFeaturesCollection.features
           },
           style: [
             {
               cmp: 'vl-style-func',
-              factory: this.pacmanStyleFunc,
-            },
-          ],
+              factory: this.pacmanStyleFunc
+            }
+          ]
         },
         // Circles
         {
@@ -525,7 +642,7 @@ export default {
             staticFeatures: range(0, 100).map(i => {
               let coordinate = [
                 random(-50, 50),
-                random(-50, 50),
+                random(-50, 50)
               ]
 
               return {
@@ -534,11 +651,11 @@ export default {
                 geometry: {
                   type: 'Circle',
                   coordinates: coordinate,
-                  radius: random(Math.pow(10, 5), Math.pow(10, 6)),
-                },
+                  radius: random(Math.pow(10, 5), Math.pow(10, 6))
+                }
               }
-            }),
-          },
+            })
+          }
         },
         // Countries vector layer
         // loads GeoJSON data from remote server
@@ -549,32 +666,32 @@ export default {
           visible: false,
           source: {
             cmp: 'vl-source-vector',
-            url: 'https://openlayers.org/en/latest/examples/data/geojson/countries.geojson',
+            url: 'https://openlayers.org/en/latest/examples/data/geojson/countries.geojson'
           },
           style: [
             {
               cmp: 'vl-style-box',
               styles: {
                 'vl-style-fill': {
-                  color: [255, 255, 255, 0.5],
+                  color: [255, 255, 255, 0.5]
                 },
                 'vl-style-stroke': {
                   color: '#219e46',
-                  width: 2,
+                  width: 2
                 },
                 'vl-style-text': {
                   text: '\uf041',
                   font: '24px FontAwesome',
                   fill: {
-                    color: '#2355af',
+                    color: '#2355af'
                   },
                   stroke: {
-                    color: 'white',
-                  },
-                },
-              },
-            },
-          ],
+                    color: 'white'
+                  }
+                }
+              }
+            }
+          ]
         },
         // Tile layer with WMS source
         {
@@ -587,8 +704,8 @@ export default {
             url: 'https://ahocevar.com/geoserver/wms',
             layers: 'topp:states',
             extParams: {TILED: true},
-            serverType: 'geoserver',
-          },
+            serverType: 'geoserver'
+          }
         },
         // Tile layer with WMTS source
         {
@@ -602,8 +719,8 @@ export default {
             layerName: '0',
             matrixSet: 'EPSG:3857',
             format: 'image/png',
-            styleName: 'default',
-          },
+            styleName: 'default'
+          }
         },
         // Vector layer with clustering
         {
@@ -623,7 +740,7 @@ export default {
               features: range(0, 10000).map(i => {
                 let coordinate = [
                   random(-50, 50),
-                  random(-50, 50),
+                  random(-50, 50)
                 ]
 
                 return {
@@ -631,18 +748,18 @@ export default {
                   id: 'random-' + i,
                   geometry: {
                     type: 'Point',
-                    coordinates: coordinate,
-                  },
+                    coordinates: coordinate
+                  }
                 }
-              }),
-            },
+              })
+            }
           },
           style: [
             {
               cmp: 'vl-style-func',
-              factory: this.clusterStyleFunc,
-            },
-          ],
+              factory: this.clusterStyleFunc
+            }
+          ]
         },
         {
           id: 'wfs',
@@ -661,8 +778,8 @@ export default {
             },
             strategyFactory () {
               return loadingBBox
-            },
-          },
+            }
+          }
         },
         {
           id: 'static-image',
@@ -674,8 +791,8 @@ export default {
             projection: customProj.getCode(),
             url: 'https://imgs.xkcd.com/comics/online_communities.png',
             size: [1024, 968],
-            extent: imageExtent,
-          },
+            extent: imageExtent
+          }
         },
         {
           id: 'wms-image',
@@ -686,8 +803,8 @@ export default {
             cmp: 'vl-source-image-wms',
             url: 'https://ahocevar.com/geoserver/wms',
             layers: 'topp:states',
-            serverType: 'geoserver',
-          },
+            serverType: 'geoserver'
+          }
         },
         {
           id: 'vector-tiles',
@@ -696,7 +813,7 @@ export default {
           visible: false,
           source: {
             cmp: 'vl-source-vector-tile',
-            url: 'https://basemaps.arcgis.com/v1/arcgis/rest/services/World_Basemap/VectorTileServer/tile/{z}/{y}/{x}.pbf',
+            url: 'https://basemaps.arcgis.com/v1/arcgis/rest/services/World_Basemap/VectorTileServer/tile/{z}/{y}/{x}.pbf'
           },
           style: [
             {
@@ -704,67 +821,99 @@ export default {
               styles: {
                 'vl-style-stroke': {
                   width: 2,
-                  color: '#2979ff',
+                  color: '#2979ff'
                 },
                 'vl-style-circle': {
                   radius: 5,
                   stroke: {
                     width: 1.5,
-                    color: '#2979ff',
-                  },
-                },
-              },
-            },
-          ],
-        },
-      ],
+                    color: '#2979ff'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
-  },
+  }
 }
 </script>
 
 <style>
-html, body, #app {
+body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
 }
-html .vld-demo-app, body .vld-demo-app, #app .vld-demo-app {
+
+.vld-demo-app {
   position: relative;
 }
-html .vld-demo-app .map, body .vld-demo-app .map, #app .vld-demo-app .map {
-  height: 100%;
-  width: 100%;
+
+.map {
+  height: 100vh;
+  width: 100vw;
 }
-html .vld-demo-app .map-panel, body .vld-demo-app .map-panel, #app .vld-demo-app .map-panel {
+
+.map-panel {
   padding: 0;
+  position: absolute;
+  top: 70px;
+  right: 10px;
+  width: 300px;
+  height: 400px;
+  background-color: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
 }
-html .vld-demo-app .map-panel .panel-heading, body .vld-demo-app .map-panel .panel-heading, #app .vld-demo-app .map-panel .panel-heading {
+
+.map-panel .panel-heading {
   box-shadow: 0 0.25em 0.5em rgba(51, 51, 51, 0.2);
 }
-html .vld-demo-app .map-panel .panel-content, body .vld-demo-app .map-panel .panel-content, #app .vld-demo-app .map-panel .panel-content {
+
+.map-panel .panel-tabs {
+  display: flex;
+}
+
+.map-panel a {
+  flex-grow: 1;
+  background-color: #eee;
+  cursor: pointer;
+  height: 30px;
+}
+
+.map-panel a.is-active {
+  background-color: #ddd;
+}
+
+.map-panel .panel-content {
   background: white;
   box-shadow: 0 0.25em 0.5em rgba(51, 51, 51, 0.2);
 }
-html .vld-demo-app .map-panel .panel-block.draw-panel .buttons .button, body .vld-demo-app .map-panel .panel-block.draw-panel .buttons .button, #app .vld-demo-app .map-panel .panel-block.draw-panel .buttons .button {
+
+.map-panel .panel-block.draw-panel .buttons .button {
   display: block;
   flex: 1 1 100%;
 }
-html .vld-demo-app .base-layers-panel, body .vld-demo-app .base-layers-panel, #app .vld-demo-app .base-layers-panel {
+
+.base-layers-panel {
   position: absolute;
   left: 50%;
   bottom: 20px;
   transform: translateX(-50%);
 }
-html .vld-demo-app .feature-popup, body .vld-demo-app .feature-popup, #app .vld-demo-app .feature-popup {
+
+.feature-popup {
   position: absolute;
   left: -50px;
   bottom: 12px;
   width: 20em;
   max-width: none;
 }
-html .vld-demo-app .feature-popup:after, html .vld-demo-app .feature-popup:before, body .vld-demo-app .feature-popup:after, body .vld-demo-app .feature-popup:before, #app .vld-demo-app .feature-popup:after, #app .vld-demo-app .feature-popup:before {
+
+.feature-popup:after, .feature-popup:before {
   top: 100%;
   border: solid transparent;
   content: " ";
@@ -773,23 +922,27 @@ html .vld-demo-app .feature-popup:after, html .vld-demo-app .feature-popup:befor
   position: absolute;
   pointer-events: none;
 }
-html .vld-demo-app .feature-popup:after, body .vld-demo-app .feature-popup:after, #app .vld-demo-app .feature-popup:after {
+
+.feature-popup:after {
   border-top-color: white;
   border-width: 10px;
   left: 48px;
   margin-left: -10px;
 }
-html .vld-demo-app .feature-popup:before, body .vld-demo-app .feature-popup:before, #app .vld-demo-app .feature-popup:before {
+
+.feature-popup:before {
   border-top-color: #cccccc;
   border-width: 11px;
   left: 48px;
   margin-left: -11px;
 }
-html .vld-demo-app .feature-popup .card-content, body .vld-demo-app .feature-popup .card-content, #app .vld-demo-app .feature-popup .card-content {
+
+.feature-popup .card-content {
   max-height: 20em;
   overflow: auto;
 }
-html .vld-demo-app .feature-popup .content, body .vld-demo-app .feature-popup .content, #app .vld-demo-app .feature-popup .content {
+
+.feature-popup .content {
   word-break: break-all;
 }
 </style>
